@@ -1,7 +1,7 @@
 CREATE TABLE Suppliers(
     SupplierID INT AUTO_INCREMENT PRIMARY KEY,
     SupplierName VARCHAR(255) NOT NULL,
-    ContactInfo VARCHAR(255)
+    ContactInfo VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Products (
@@ -43,6 +43,6 @@ CREATE TABLE Sales(
 CREATE TABLE Customers (
     CustomerID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerName VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) UNIQUE,
-    Phone VARCHAR(50),
+    Email VARCHAR(255) UNIQUE NOT NULL,
+    Phone VARCHAR(50) NOT NULL,
 );
