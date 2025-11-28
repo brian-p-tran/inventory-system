@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerDAO {
     public void addCustomer(String name, String email, String phone) throws SQLException {
@@ -21,7 +23,8 @@ public class CustomerDAO {
         
     }
 
-    public void viewCustomers() throws SQLException {
+    public List<String> viewCustomers() throws SQLException {
+        List<String> customers = new ArrayList<>();
         String sql = "SELECT * FROM Customers";
 
         Connection con = DBCon.getConnection();
@@ -30,7 +33,11 @@ public class CustomerDAO {
         ResultSet res = ps.executeQuery();
 
         //res contains the set of the entries, use res.getInt or res.getString
+        while (res.next()) {
+            customers.add(res.getInt("CustomerID") + " - " + res.getString("CustomerName") + " - " + res.getString("Email"));
+        }
 
         con.close();
+        return customers;
     }
 }

@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductDAO {
     public void addProduct(String name, String category, int supplierId, int quantity, int reorder, double price) throws SQLException {
@@ -22,7 +24,8 @@ public class ProductDAO {
 
         con.close();
     }
-    public void viewProducts() throws SQLException {
+    public List<String> viewProducts() throws SQLException {
+        List<String> products = new ArrayList<>();
         String sql = "SELECT * FROM Products";
 
         Connection con = DBCon.getConnection();
@@ -31,8 +34,12 @@ public class ProductDAO {
         ResultSet res = ps.executeQuery();
 
         //res contains the set of the entries, use res.getInt or res.getString
+        while (res.next()) {
+            products.add(res.getInt("ProductID") + " | " + res.getString("Name") + " | " + res.getString("Category") + " | $" + res.getDouble("UnitPrice") + " | Qty: " + res.getInt("QuantityInStock"));
+        }
 
         con.close();
+        return products;
     }
     public void updateStock(int productId, int newQty) throws SQLException {
         String sql =
