@@ -1,8 +1,9 @@
+USE my_database;
 CREATE TABLE Customers (
     CustomerID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerName VARCHAR(255) NOT NULL,
     Email VARCHAR(255) UNIQUE NOT NULL,
-    Phone VARCHAR(50) NOT NULL,
+    Phone VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Suppliers(
@@ -30,8 +31,9 @@ CREATE TABLE Products (
 CREATE TABLE Sales(
     SaleID INT AUTO_INCREMENT PRIMARY KEY,
     ProductID INT NOT NULL,
+    CustomerID INT NOT NULL,
     SaleDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    QuantiySold INT NOT NULL,
+    QuantitySold INT NOT NULL,
     TotalAmount DECIMAL(10,2) NOT NULL,
 
     CONSTRAINT fk_sales_product
