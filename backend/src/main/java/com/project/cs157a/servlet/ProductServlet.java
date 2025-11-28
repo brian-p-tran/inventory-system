@@ -15,13 +15,13 @@ import java.util.List;
 public class ProductServlet extends HttpServlet {
 
     private ProductDAO productDAO;
+    private static final String ADMIN_KEY = "admin123";
 
     @Override
     public void init() {
         productDAO = new ProductDAO();
     }
 
-    //View Products
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -29,37 +29,81 @@ public class ProductServlet extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
 
-        out.println("<h2>Product List</h2>");
+        String action = request.getParameter("action");
 
         try {
+            // 1. Low stock
+            if ("lowStock".equals(action)) {
+                out.println("<h2>Low Stock Products</h2>");
+                List<String> products = productDAO.viewLowStockProducts();
+
+                if (products.isEmpty()) {
+                    out.println("<p>No low stock items found</p>");
+                } else {
+                    for (String p : products) {
+                        out.println("<p>" + p + "</p>");
+                    }
+                }
+                return;
+            }
+
+            // 2. Search
+            if ("search".equals(action)) {
+                String keyword = request.getParameter("q");
+
+                if (keyword == null || keyword.isBlank()) {
+                    out.println("<p>Please provide search keyword using ?q=</p>");
+                    return;
+                }
+
+                out.println("<h2>Search Results for '" + keyword + "'</h2>");
+
+                List<String> products = productDAO.searchProducts(keyword);
+
+                if (products.isEmpty()) {
+                    out.println("<p>No matching products found</p>");
+                } else {
+                    for (String p : products) {
+                        out.println("<p>" + p + "</p>");
+                    }
+                }
+                return;
+            }
+
+            // default: view all
+            out.println("<h2>Product List</h2>");
             List<String> products = productDAO.viewProducts();
             for (String p : products) {
                 out.println("<p>" + p + "</p>");
             }
+
         } catch (SQLException e) {
             out.println("<p>Error loading products</p>");
             e.printStackTrace();
         }
     }
 
-    // add, update, delete
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        // authorization check for ANY write action
+        String adminKey = request.getParameter("adminKey");
+        if (adminKey == null || !ADMIN_KEY.equals(adminKey)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Not authorized to modify inventory");
+            return;
+        }
 
         String action = request.getParameter("action");
 
         try {
             if ("add".equals(action)) {
                 addProduct(request);
-            } 
-            else if ("updateStock".equals(action)) {
+            } else if ("updateStock".equals(action)) {
                 updateStock(request);
-            } 
-            else if ("updatePrice".equals(action)) {
+            } else if ("updatePrice".equals(action)) {
                 updatePrice(request);
-            } 
-            else if ("delete".equals(action)) {
+            } else if ("delete".equals(action)) {
                 deleteProduct(request);
             }
 
@@ -70,7 +114,6 @@ public class ProductServlet extends HttpServlet {
         }
     }
 
-    //helper methods
     private void addProduct(HttpServletRequest request) throws SQLException {
         String name = request.getParameter("name");
         String category = request.getParameter("category");
@@ -101,4 +144,3 @@ public class ProductServlet extends HttpServlet {
         productDAO.deleteProduct(productId);
     }
 }
-

@@ -76,4 +76,56 @@ public class ProductDAO {
 
         con.close();
     }
+    
+    // get products where quantity is at or below reorder level
+    public List<String> viewLowStockProducts() throws SQLException {
+        List<String> products = new ArrayList<>();
+        String sql = "SELECT * FROM Products WHERE QuantityInStock <= ReorderLevel";
+
+        Connection con = DBCon.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        ResultSet res = ps.executeQuery();
+
+        while (res.next()) {
+            products.add(
+                res.getInt("ProductID") + " | " +
+                res.getString("Name") + " | " +
+                res.getString("Category") + " | $" +
+                res.getDouble("UnitPrice") + " | Qty: " +
+                res.getInt("QuantityInStock")
+            );
+        }
+
+        con.close();
+        return products;
+    }
+
+    // search products by name or category
+    public List<String> searchProducts(String keyword) throws SQLException {
+        List<String> products = new ArrayList<>();
+        String sql = "SELECT * FROM Products WHERE Name LIKE ? OR Category LIKE ?";
+
+        Connection con = DBCon.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+
+        String pattern = "%" + keyword + "%";
+        ps.setString(1, pattern);
+        ps.setString(2, pattern);
+
+        ResultSet res = ps.executeQuery();
+
+        while (res.next()) {
+            products.add(
+                res.getInt("ProductID") + " | " +
+                res.getString("Name") + " | " +
+                res.getString("Category") + " | $" +
+                res.getDouble("UnitPrice") + " | Qty: " +
+                res.getInt("QuantityInStock")
+            );
+        }
+
+        con.close();
+        return products;
+    }
+
 }
