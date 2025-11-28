@@ -1,4 +1,4 @@
-package com.project.cs157a;
+package com.project.cs157a.dao;
 import java.sql.*;
 
 
