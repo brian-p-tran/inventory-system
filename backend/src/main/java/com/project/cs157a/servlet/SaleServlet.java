@@ -15,59 +15,67 @@ import java.util.List;
 @WebServlet("/sales")
 public class SaleServlet extends HttpServlet {
 
-    private SaleDAO saleDAO;
+	private SaleDAO saleDAO;
+	private static final String ADMIN_KEY = "admin123";
 
-    @Override
-    public void init() throws ServletException {
-        saleDAO = new SaleDAO();
-    }
+	@Override
+	public void init() throws ServletException {
+		saleDAO = new SaleDAO();
+	}
 
-    //view sales
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+	// view sales
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
 
-        out.println("<h2>Sales List</h2>");
+		out.println("<h2>Sales List</h2>");
 
-        try {
-            List<String> sales = saleDAO.viewSales();
-            for (String s : sales) {
-                out.println("<p>" + s + "</p>");
-            }
-        } catch (SQLException e) {
-            throw new ServletException(e);
-        }
-    }
+		try {
+			List<String> sales = saleDAO.viewSales();
+			for (String s : sales) {
+				out.println("<p>" + s + "</p>");
+			}
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
+	}
 
-    //add sale
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+	// add sale (protected by admin key)
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
-        int productId = Integer.parseInt(request.getParameter("productId"));
-        int customerId = Integer.parseInt(request.getParameter("customerId"));
-        int qtySold = Integer.parseInt(request.getParameter("qtySold"));
-        double total = Double.parseDouble(request.getParameter("total"));
+		// basic authorization: only admin can record sales that change inventory
+		String adminKey = request.getParameter("adminKey");
+		if (adminKey == null || !ADMIN_KEY.equals(adminKey)) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Not authorized to record sales");
+			return;
+		}
 
-        try {
-            boolean success = saleDAO.addSale(productId, customerId, qtySold, total);
+		int productId = Integer.parseInt(request.getParameter("productId"));
+		int customerId = Integer.parseInt(request.getParameter("customerId"));
+		int qtySold = Integer.parseInt(request.getParameter("qtySold"));
+		double total = Double.parseDouble(request.getParameter("total"));
 
-            response.setContentType("text/html");
-            PrintWriter out = response.getWriter();
+		try {
+			boolean success = saleDAO.addSale(productId, customerId, qtySold, total);
 
-            if (success) {
-                out.println("<h3>Sale completed successfully</h3>");
-            } else {
-                out.println("<h3 style='color:red'>❌ Insufficient inventory</h3>");
-            }
+			response.setContentType("text/html");
+			PrintWriter out = response.getWriter();
 
-            out.println("<a href='/sales'>Back to Sales</a>");
+			if (success) {
+				out.println("<h3>Sale completed successfully</h3>");
+			} else {
+				out.println("<h3 style='color:red'>❌ Insufficient inventory</h3>");
+			}
 
-        } catch (SQLException e) {
-            throw new ServletException(e);
-        }
-    }
+			out.println("<a href='/sales'>Back to Sales</a>");
+
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
+	}
 }
