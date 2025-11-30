@@ -82,7 +82,7 @@ Example:
 | ------------- | ------------- |
 | action  | updatePrice  |
 | productId  | 1  |
-| quantity  | 99.99  | 
+| price  | 99.99  | 
 
 Delete Product (keys are case-sensitive)
 Example:
@@ -98,7 +98,7 @@ Example:
 | ------------- | ------------- |
 | name  | Lebron James  |
 | email  | lebronjames@example.com  | 
-| quantity  | 982-1133  | 
+| phone  | 982-1133  | 
 
 **SALES**  
 Add Sale (keys are case-sensitive)
@@ -130,6 +130,6 @@ Update Supplier (keys are case-sensitive)
 | Key  | Value |
 | ------------- | ------------- |
 | action  | delete  |
-| suplierId  | 2  |  
+| supplierId  | 2  |  
 
 More features could be added.
